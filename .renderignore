@@ -1,0 +1,8 @@
+.env*
+.git
+.gitignore
+*.md
+RENDER_*
+node_modules/.cache
+*.log
+.DS_Store
