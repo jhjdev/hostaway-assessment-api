@@ -86,7 +86,7 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 2. **Configure Service**
    - **Name**: `hostaway-assessment-api`
    - **Environment**: Node
-   - **Build Command**: `npm install && npm run build`
+Build Command : npm ci && npm run build
    - **Start Command**: `npm start`
    - **Plan**: Free (or your preferred plan)
 
