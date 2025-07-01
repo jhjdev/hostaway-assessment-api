@@ -56,15 +56,28 @@ async function setupJWT() {
 
 async function setupDatabase() {
   // Connect to MongoDB after environment is loaded
-  // Simple SSL configuration for Node.js 23
+  // Use legacy SSL options to bypass Node.js 20 OpenSSL issues with Atlas
   const options = {
-    ssl: true,
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 10000
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    tlsInsecure: false,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false,
+    serverSelectionTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 30000
   };
   
-  client = await MongoClient.connect(fastify.config.MONGODB_URI, options);
-  fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
+  try {
+    console.log('Attempting MongoDB connection with legacy SSL options');
+    client = await MongoClient.connect(fastify.config.MONGODB_URI, options);
+    console.log('MongoDB connection successful');
+    fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
+    console.log('Database decorated successfully');
+  } catch (error) {
+    console.error('MongoDB connection failed:', error);
+    throw error;
+  }
 }
 
 // Register routes
