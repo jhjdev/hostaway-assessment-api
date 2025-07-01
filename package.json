@@ -37,7 +37,7 @@
     "bcryptjs": "^3.0.2",
     "fastify": "^5.4.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.17.0",
+    "mongodb": "^5.9.0",
     "nodemailer": "^7.0.4"
   },
   "devDependencies": {
