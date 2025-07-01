@@ -56,10 +56,9 @@ async function setupJWT() {
 
 async function setupDatabase() {
   // Connect to MongoDB after environment is loaded
-  // Render-specific SSL configuration for Node.js 23
+  // Simple SSL configuration for Node.js 23
   const options = {
     ssl: true,
-    sslValidate: true,
     serverSelectionTimeoutMS: 5000,
     connectTimeoutMS: 10000
   };
