@@ -14,20 +14,24 @@ let client: MongoClient;
 async function registerPlugins() {
   // Register environment variables first
   await fastify.register(fastifyEnv, {
-    dotenv: true,
+    dotenv: {
+      path: '.env.development'
+    },
     schema: {
       type: 'object',
-      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT'],
+      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT', 'JWT_SECRET'],
       properties: {
         MONGODB_URI: { type: 'string' },
         MONGODB_DB_NAME: { type: 'string' },
         PORT: { type: 'string', default: '4000' },
         OPENWEATHER_API_KEY: { type: 'string' },
-        OPENWEATHER_API_URL: { type: 'string' }
+        OPENWEATHER_API_URL: { type: 'string' },
+        JWT_SECRET: { type: 'string' }
       }
     },
     confKey: 'config'
   });
+  
   
   // Register security tools
   fastify.register(fastifyHelmet);
@@ -37,9 +41,16 @@ async function registerPlugins() {
     timeWindow: '1 minute'
   });
 
-  // Add JWT authentication
-  fastify.register(fastifyJWT, {
-    secret: 'supersecret' // Replace with a secure key in a real application
+}
+
+async function setupJWT() {
+  // Register JWT after environment is loaded
+  if (!fastify.config.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment configuration');
+  }
+  
+  await fastify.register(fastifyJWT, {
+    secret: fastify.config.JWT_SECRET
   });
 }
 
@@ -87,6 +98,9 @@ const start = async (): Promise<void> => {
   try {
     // Register plugins
     await registerPlugins();
+    
+    // Setup JWT authentication
+    await setupJWT();
     
     // Setup database connection
     await setupDatabase();

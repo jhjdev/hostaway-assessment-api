@@ -47,3 +47,6 @@ coverage/
 
 # Optional eslint cache
 .eslintcache
+
+# Security documentation with secrets
+RENDER_SECURITY_SETUP_LOCAL.md

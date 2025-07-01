@@ -1,7 +1,7 @@
 services:
   - type: web
     name: hostaway-assessment-api
-    env: node
+    runtime: node
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -17,7 +17,9 @@ services:
       - key: PORT
         value: 4000
       - key: OPENWEATHER_API_KEY
-        value: 094a644dfff0d8c4472f759e69620ff9
+        sync: false # Set this as a secret environment variable in Render dashboard
       - key: OPENWEATHER_API_URL
         value: https://api.openweathermap.org
+      - key: JWT_SECRET
+        sync: false # Set this as a secret environment variable in Render dashboard
     healthCheckPath: /api/weather/health
