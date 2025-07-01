@@ -9,6 +9,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "18"
       # Note: MONGODB_URI, MONGODB_DB_NAME, OPENWEATHER_API_KEY, and JWT_SECRET
       # must be set manually in Render dashboard as secret environment variables
       - key: PORT
