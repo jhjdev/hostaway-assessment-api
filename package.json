@@ -13,7 +13,7 @@
     "seed": "tsx src/scripts/seed.ts"
   },
   "engines": {
-    "node": "23.0.0"
+    "node": "20.18.0"
   },
   "repository": {
     "type": "git",
