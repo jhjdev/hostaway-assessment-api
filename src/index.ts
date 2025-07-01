@@ -56,23 +56,13 @@ async function setupJWT() {
 
 async function setupDatabase() {
   // Connect to MongoDB after environment is loaded
-  // Render-specific configuration for MongoDB Atlas
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+  // Minimal configuration based on successful Render deployments
   const options = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-    family: 4, // Use IPv4, skip trying IPv6
-    ...(isProduction && {
-      tls: true,
-      authSource: 'admin'
-    })
+    serverSelectionTimeoutMS: 5000
   };
   
   try {
-    console.log('Attempting MongoDB connection for Render deployment');
+    console.log('Attempting MongoDB connection with minimal config');
     console.log('Environment:', process.env.NODE_ENV);
     console.log('URI format:', fastify.config.MONGODB_URI.replace(/:\/\/.*@/, '://***:***@'));
     
