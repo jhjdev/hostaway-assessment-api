@@ -66,7 +66,17 @@ async function setupDatabase() {
     console.log('Environment:', process.env.NODE_ENV);
     console.log('URI format:', fastify.config.MONGODB_URI.replace(/:\/\/.*@/, '://***:***@'));
     
-    client = await MongoClient.connect(fastify.config.MONGODB_URI, options);
+    // Try standard URI format as fallback for Render compatibility
+    let connectionUri = fastify.config.MONGODB_URI;
+    if (process.env.NODE_ENV === 'production' && connectionUri.includes('mongodb+srv://')) {
+      console.log('Production environment detected, trying fallback connection...');
+      // Convert SRV to standard format for better Render compatibility
+      connectionUri = connectionUri.replace('mongodb+srv://', 'mongodb://')
+                                   .replace('@hostaway.4zmswhw.mongodb.net/', '@ac-wmjiibf-shard-00-00.4zmswhw.mongodb.net:27017,ac-wmjiibf-shard-00-01.4zmswhw.mongodb.net:27017,ac-wmjiibf-shard-00-02.4zmswhw.mongodb.net:27017/') + '?ssl=true&replicaSet=atlas-zjer4f-shard-0&authSource=admin&retryWrites=true&w=majority';
+      console.log('Using fallback URI format for Render');
+    }
+    
+    client = await MongoClient.connect(connectionUri, options);
     console.log('MongoDB connection successful');
     fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
     console.log('Database decorated successfully');
