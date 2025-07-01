@@ -1,45 +1,21 @@
 import { FastifyRequest } from 'fastify';
-import { Db } from 'mongodb';
-
-export interface User {
-  _id?: string;
-  email: string;
-  password: string;
-  isVerified: boolean;
-  verificationToken?: string;
-  resetPasswordToken?: string;
-  resetPasswordExpires?: Date;
-  role: 'user' | 'superadmin';
-  profile?: UserProfile;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Connection } from 'mongoose';
 
 export interface UserProfile {
   firstName?: string;
   lastName?: string;
-  avatar?: string;
-  location?: string;
-  timezone?: string;
   preferences: {
-    units: 'metric' | 'imperial';
-    language: 'en' | 'es' | 'fr' | 'de';
+    temperatureUnit: 'celsius' | 'fahrenheit';
+    theme: 'light' | 'dark' | 'system';
     notifications: boolean;
   };
-}
-
-export interface WeatherSearch {
-  _id?: string;
-  userId: string;
-  city: string;
-  weatherData: WeatherData;
-  searchedAt: Date;
 }
 
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  role: 'user' | 'superadmin';
+  firstName: string;
+  lastName: string;
 }
 
 export interface WeatherData {
@@ -84,7 +60,7 @@ export interface AuthenticatedRequest extends FastifyRequest {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    mongo: Db;
+    mongo: Connection;
     config: {
       MONGODB_URI: string;
       MONGODB_DB_NAME: string;

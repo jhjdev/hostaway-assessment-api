@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import axios from 'axios';
-import { WeatherRequest, WeatherData, WeatherSearch, AuthenticatedRequest } from '../types';
+import { WeatherRequest, WeatherData, AuthenticatedRequest } from '../types';
+import { SearchHistory } from '../models/SearchHistory';
+import mongoose from 'mongoose';
 
 export default async function weatherRoutes(fastify: FastifyInstance) {
   // Get current weather for a city
@@ -45,16 +47,26 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
       // Save search to history
       const user = (request as any).user;
       if (user) {
-        const searchHistoryCollection = fastify.mongo.collection<WeatherSearch>('weatherSearches');
-        const searchRecord: Omit<WeatherSearch, '_id'> = {
-          userId: user.id,
-          city: response.data.name,
-          weatherData,
-          searchedAt: new Date()
-        };
-        
         try {
-          await searchHistoryCollection.insertOne(searchRecord);
+          const searchRecord = new SearchHistory({
+            userId: new mongoose.Types.ObjectId(user.id),
+            query: city,
+            location: {
+              name: response.data.name,
+              country: response.data.sys.country,
+              lat: response.data.coord.lat,
+              lon: response.data.coord.lon
+            },
+            weatherData: {
+              temperature: weatherData.temperature,
+              description: weatherData.description,
+              humidity: weatherData.humidity,
+              windSpeed: weatherData.windSpeed,
+              icon: response.data.weather[0].icon
+            }
+          });
+          
+          await searchRecord.save();
         } catch (error) {
           fastify.log.error('Failed to save search history:', error);
           // Don't fail the request if search history fails
@@ -170,13 +182,12 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
   }, async (request: any, reply: FastifyReply) => {
     try {
       const user = request.user;
-      const searchHistoryCollection = fastify.mongo.collection<WeatherSearch>('weatherSearches');
       
-      const searches = await searchHistoryCollection
-        .find({ userId: user.id })
-        .sort({ searchedAt: -1 })
+      const searches = await SearchHistory
+        .find({ userId: new mongoose.Types.ObjectId(user.id) })
+        .sort({ createdAt: -1 })
         .limit(50)
-        .toArray();
+        .lean();
 
       return reply.send({
         success: true,
@@ -202,11 +213,10 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
     try {
       const user = (request as any).user;
       const { id } = request.params;
-      const searchHistoryCollection = fastify.mongo.collection<WeatherSearch>('weatherSearches');
       
-      const result = await searchHistoryCollection.deleteOne({ 
-        _id: id, 
-        userId: user.id 
+      const result = await SearchHistory.deleteOne({ 
+        _id: new mongoose.Types.ObjectId(id), 
+        userId: new mongoose.Types.ObjectId(user.id) 
       });
 
       if (result.deletedCount === 0) {
@@ -236,9 +246,8 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
   }, async (request: any, reply: FastifyReply) => {
     try {
       const user = request.user;
-      const searchHistoryCollection = fastify.mongo.collection<WeatherSearch>('weatherSearches');
       
-      await searchHistoryCollection.deleteMany({ userId: user.id });
+      await SearchHistory.deleteMany({ userId: new mongoose.Types.ObjectId(user.id) });
 
       return reply.send({ 
         success: true, 

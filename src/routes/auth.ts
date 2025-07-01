@@ -1,12 +1,12 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
-  User,
   RegisterRequest,
   LoginRequest,
   VerifyEmailRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest
 } from '../types';
+import { User } from '../models/User';
 import { 
   hashPassword, 
   comparePassword, 
@@ -44,34 +44,38 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }
 
     try {
-      const usersCollection = fastify.mongo.collection<User>('users');
-      
       // Check if user already exists
-      const existingUser = await usersCollection.findOne({ email });
+      const existingUser = await User.findOne({ email });
       if (existingUser) {
         return reply.code(409).send({ error: 'User already exists' });
       }
 
       // Hash password and create user
       const hashedPassword = await hashPassword(password);
-      const verificationToken = generateVerificationToken();
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+      const verificationCodeExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
       
-      const newUser: Omit<User, '_id'> = {
+      const newUser = new User({
         email,
         password: hashedPassword,
+        firstName: 'User', // Default values - can be updated in profile
+        lastName: 'User',
         isVerified: false,
-        verificationToken,
-        role: 'user',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+        verificationCode,
+        verificationCodeExpiry,
+        preferences: {
+          temperatureUnit: 'celsius',
+          theme: 'system',
+          notifications: true
+        }
+      });
 
-      const result = await usersCollection.insertOne(newUser);
+      const savedUser = await newUser.save();
       
       return reply.code(201).send({ 
         message: 'User registered successfully',
-        userId: result.insertedId,
-        verificationToken // In production, send this via email instead
+        userId: savedUser._id,
+        verificationCode // In production, send this via email instead
       });
 
     } catch (error) {
@@ -96,8 +100,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const { email, password } = request.body;
 
     try {
-      const usersCollection = fastify.mongo.collection<User>('users');
-      const user = await usersCollection.findOne({ email });
+      const user = await User.findOne({ email });
 
       if (!user) {
         return reply.code(401).send({ error: 'Invalid credentials' });
@@ -115,8 +118,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
       // Generate JWT token
       const token = fastify.jwt.sign({ 
         id: user._id, 
-        email: user.email, 
-        role: user.role 
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
       });
 
       return reply.send({
@@ -125,7 +129,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
         user: {
           id: user._id,
           email: user.email,
-          role: user.role
+          firstName: user.firstName,
+          lastName: user.lastName,
+          preferences: user.preferences
         }
       });
 
@@ -150,20 +156,19 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const { token } = request.body;
 
     try {
-      const usersCollection = fastify.mongo.collection<User>('users');
-      const user = await usersCollection.findOne({ verificationToken: token });
+      const user = await User.findOne({ 
+        verificationCode: token,
+        verificationCodeExpiry: { $gt: new Date() }
+      });
 
       if (!user) {
-        return reply.code(400).send({ error: 'Invalid verification token' });
+        return reply.code(400).send({ error: 'Invalid or expired verification code' });
       }
 
-      await usersCollection.updateOne(
-        { _id: user._id },
-        { 
-          $set: { isVerified: true, updatedAt: new Date() },
-          $unset: { verificationToken: 1 }
-        }
-      );
+      user.isVerified = true;
+      delete user.verificationCode;
+      delete user.verificationCodeExpiry;
+      await user.save();
 
       return reply.send({ message: 'Email verified successfully' });
 
@@ -184,11 +189,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request: any, reply: FastifyReply) => {
     try {
-      const usersCollection = fastify.mongo.collection<User>('users');
-      const user = await usersCollection.findOne(
-        { _id: request.user.id },
-        { projection: { password: 0, verificationToken: 0, resetPasswordToken: 0 } }
-      );
+      const user = await User.findById(request.user.id)
+        .select('-password -verificationCode -verificationCodeExpiry');
 
       if (!user) {
         return reply.code(404).send({ error: 'User not found' });

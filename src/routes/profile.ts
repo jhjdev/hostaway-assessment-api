@@ -1,5 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { User, UserProfile } from '../types';
+import { UserProfile } from '../types';
+import { User } from '../models/User';
+import { SearchHistory } from '../models/SearchHistory';
+import mongoose from 'mongoose';
 
 export default async function profileRoutes(fastify: FastifyInstance) {
   // Get user profile
@@ -14,12 +17,9 @@ export default async function profileRoutes(fastify: FastifyInstance) {
   }, async (request: any, reply: FastifyReply) => {
     try {
       const user = request.user;
-      const usersCollection = fastify.mongo.collection<User>('users');
       
-      const userData = await usersCollection.findOne(
-        { _id: user.id },
-        { projection: { password: 0, verificationToken: 0, resetPasswordToken: 0 } }
-      );
+      const userData = await User.findById(user.id)
+        .select('-password -verificationCode -verificationCodeExpiry');
 
       if (!userData) {
         return reply.code(404).send({ error: 'User not found' });
@@ -30,14 +30,9 @@ export default async function profileRoutes(fastify: FastifyInstance) {
         data: {
           id: userData._id,
           email: userData.email,
-          role: userData.role,
-          profile: userData.profile || {
-            preferences: {
-              units: 'metric',
-              language: 'en',
-              notifications: true
-            }
-          },
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          preferences: userData.preferences,
           createdAt: userData.createdAt,
           updatedAt: userData.updatedAt
         }
@@ -50,7 +45,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
   });
 
   // Update user profile
-  fastify.put<{ Body: Partial<UserProfile> }>('/', {
+  fastify.put<{ Body: { firstName?: string; lastName?: string; preferences?: any } }>('/', {
     preHandler: async (request, reply) => {
       try {
         await request.jwtVerify();
@@ -64,68 +59,50 @@ export default async function profileRoutes(fastify: FastifyInstance) {
         properties: {
           firstName: { type: 'string', maxLength: 50 },
           lastName: { type: 'string', maxLength: 50 },
-          avatar: { type: 'string' },
-          location: { type: 'string', maxLength: 100 },
-          timezone: { type: 'string' },
           preferences: {
             type: 'object',
             properties: {
-              units: { type: 'string', enum: ['metric', 'imperial'] },
-              language: { type: 'string', enum: ['en', 'es', 'fr', 'de'] },
+              temperatureUnit: { type: 'string', enum: ['celsius', 'fahrenheit'] },
+              theme: { type: 'string', enum: ['light', 'dark', 'system'] },
               notifications: { type: 'boolean' }
             }
           }
         }
       }
     }
-  }, async (request: FastifyRequest<{ Body: Partial<UserProfile> }>, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Body: { firstName?: string; lastName?: string; preferences?: any } }>, reply: FastifyReply) => {
     try {
       const user = (request as any).user;
       const profileUpdate = request.body;
-      const usersCollection = fastify.mongo.collection<User>('users');
 
-      // Get current user data
-      const currentUser = await usersCollection.findOne({ _id: user.id });
+      // Get current user
+      const currentUser = await User.findById(user.id);
       if (!currentUser) {
         return reply.code(404).send({ error: 'User not found' });
       }
 
-      // Merge current profile with updates
-      const defaultPreferences = {
-        units: 'metric' as const,
-        language: 'en' as const,
-        notifications: true
-      };
-      
-      const updatedProfile: UserProfile = {
-        ...currentUser.profile,
-        ...profileUpdate,
-        preferences: {
-          ...defaultPreferences,
-          ...currentUser.profile?.preferences,
+      // Update user fields
+      if (profileUpdate.firstName) currentUser.firstName = profileUpdate.firstName;
+      if (profileUpdate.lastName) currentUser.lastName = profileUpdate.lastName;
+      if (profileUpdate.preferences) {
+        currentUser.preferences = {
+          ...currentUser.preferences,
           ...profileUpdate.preferences
-        }
-      };
-
-      // Update user profile
-      const result = await usersCollection.updateOne(
-        { _id: user.id },
-        { 
-          $set: { 
-            profile: updatedProfile,
-            updatedAt: new Date()
-          }
-        }
-      );
-
-      if (result.matchedCount === 0) {
-        return reply.code(404).send({ error: 'User not found' });
+        };
       }
+
+      const updatedUser = await currentUser.save();
 
       return reply.send({
         success: true,
         message: 'Profile updated successfully',
-        data: updatedProfile
+        data: {
+          id: updatedUser._id,
+          email: updatedUser.email,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          preferences: updatedUser.preferences
+        }
       });
 
     } catch (error) {
@@ -135,7 +112,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
   });
 
   // Update user preferences only
-  fastify.patch<{ Body: { preferences: UserProfile['preferences'] } }>('/preferences', {
+  fastify.patch<{ Body: { preferences: any } }>('/preferences', {
     preHandler: async (request, reply) => {
       try {
         await request.jwtVerify();
@@ -150,40 +127,36 @@ export default async function profileRoutes(fastify: FastifyInstance) {
         properties: {
           preferences: {
             type: 'object',
-            required: ['units', 'language', 'notifications'],
             properties: {
-              units: { type: 'string', enum: ['metric', 'imperial'] },
-              language: { type: 'string', enum: ['en', 'es', 'fr', 'de'] },
+              temperatureUnit: { type: 'string', enum: ['celsius', 'fahrenheit'] },
+              theme: { type: 'string', enum: ['light', 'dark', 'system'] },
               notifications: { type: 'boolean' }
             }
           }
         }
       }
     }
-  }, async (request: FastifyRequest<{ Body: { preferences: UserProfile['preferences'] } }>, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Body: { preferences: any } }>, reply: FastifyReply) => {
     try {
       const user = (request as any).user;
       const { preferences } = request.body;
-      const usersCollection = fastify.mongo.collection<User>('users');
 
-      const result = await usersCollection.updateOne(
-        { _id: user.id },
-        { 
-          $set: { 
-            'profile.preferences': preferences,
-            updatedAt: new Date()
-          }
-        }
-      );
-
-      if (result.matchedCount === 0) {
+      const currentUser = await User.findById(user.id);
+      if (!currentUser) {
         return reply.code(404).send({ error: 'User not found' });
       }
+
+      currentUser.preferences = {
+        ...currentUser.preferences,
+        ...preferences
+      };
+      
+      await currentUser.save();
 
       return reply.send({
         success: true,
         message: 'Preferences updated successfully',
-        data: { preferences }
+        data: { preferences: currentUser.preferences }
       });
 
     } catch (error) {
@@ -204,14 +177,12 @@ export default async function profileRoutes(fastify: FastifyInstance) {
   }, async (request: any, reply: FastifyReply) => {
     try {
       const user = request.user;
-      const usersCollection = fastify.mongo.collection<User>('users');
-      const searchHistoryCollection = fastify.mongo.collection('weatherSearches');
 
       // Delete user's search history
-      await searchHistoryCollection.deleteMany({ userId: user.id });
+      await SearchHistory.deleteMany({ userId: new mongoose.Types.ObjectId(user.id) });
 
       // Delete user account
-      const result = await usersCollection.deleteOne({ _id: user.id });
+      const result = await User.deleteOne({ _id: new mongoose.Types.ObjectId(user.id) });
 
       if (result.deletedCount === 0) {
         return reply.code(404).send({ error: 'User not found' });
