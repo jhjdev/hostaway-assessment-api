@@ -96,13 +96,15 @@ A secure Fastify TypeScript REST API backend for weather data management with us
    
    | Variable | Value | Notes |
    |----------|-------|-------|
-   | `NODE_ENV` | `production` | Already configured in render.yaml |
-   | `MONGODB_URI` | Your MongoDB connection string | From your hosted MongoDB |
-   | `MONGODB_DB_NAME` | Your database name | From your hosted MongoDB |
-   | `PORT` | `4000` | Already configured in render.yaml |
-   | `OPENWEATHER_API_KEY` | Your OpenWeather API key | ⚠️ **Set as secret** |
-   | `OPENWEATHER_API_URL` | `https://api.openweathermap.org` | Already configured |
-   | `JWT_SECRET` | Your production JWT secret | ⚠️ **Set as secret** |
+   | `MONGODB_URI` | Your MongoDB connection string | ⚠️ **Required - Set as secret** |
+   | `MONGODB_DB_NAME` | Your database name | ⚠️ **Required - Set manually** |
+   | `OPENWEATHER_API_KEY` | Your OpenWeather API key | ⚠️ **Required - Set as secret** |
+   | `JWT_SECRET` | Your production JWT secret | ⚠️ **Required - Set as secret** |
+   
+   **Note**: The following variables are already configured in `render.yaml`:
+   - `NODE_ENV=production`
+   - `PORT=4000`
+   - `OPENWEATHER_API_URL=https://api.openweathermap.org`
 
 4. **Security Configuration**
    - Mark `OPENWEATHER_API_KEY` and `JWT_SECRET` as **secret** environment variables

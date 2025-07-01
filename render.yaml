@@ -8,18 +8,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        fromDatabase:
-          name: mongodb
-          property: connectionString
-      - key: MONGODB_DB_NAME
-        value: hostaway
+      # Note: MONGODB_URI, MONGODB_DB_NAME, OPENWEATHER_API_KEY, and JWT_SECRET
+      # must be set manually in Render dashboard as secret environment variables
       - key: PORT
         value: 4000
-      - key: OPENWEATHER_API_KEY
-        sync: false # Set this as a secret environment variable in Render dashboard
       - key: OPENWEATHER_API_URL
         value: https://api.openweathermap.org
-      - key: JWT_SECRET
-        sync: false # Set this as a secret environment variable in Render dashboard
     healthCheckPath: /api/weather/health
