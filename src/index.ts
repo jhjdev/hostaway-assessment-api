@@ -56,7 +56,17 @@ async function setupJWT() {
 
 async function setupDatabase() {
   // Connect to MongoDB after environment is loaded
-  client = await MongoClient.connect(fastify.config.MONGODB_URI);
+  // Node.js 23 compatibility: explicitly configure TLS options
+  const options = {
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false,
+    serverSelectionTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 30000
+  };
+  
+  client = await MongoClient.connect(fastify.config.MONGODB_URI, options);
   fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
 }
 
