@@ -56,17 +56,7 @@ async function setupJWT() {
 
 async function setupDatabase() {
   // Connect to MongoDB after environment is loaded
-  const options = {
-    serverSelectionTimeoutMS: 30000,
-    connectTimeoutMS: 30000,
-    socketTimeoutMS: 30000,
-    maxPoolSize: 10,
-    minPoolSize: 5,
-    ssl: true,
-    sslValidate: false
-  };
-  
-  client = await MongoClient.connect(fastify.config.MONGODB_URI, options);
+  client = await MongoClient.connect(fastify.config.MONGODB_URI);
   fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
 }
 
