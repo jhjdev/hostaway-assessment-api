@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: hostaway-assessment-api
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: mongodb
+          property: connectionString
+      - key: MONGODB_DB_NAME
+        value: hostaway
+      - key: PORT
+        value: 4000
+      - key: OPENWEATHER_API_KEY
+        value: 094a644dfff0d8c4472f759e69620ff9
+      - key: OPENWEATHER_API_URL
+        value: https://api.openweathermap.org
+    healthCheckPath: /api/weather/health

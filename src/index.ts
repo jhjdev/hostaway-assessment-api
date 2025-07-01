@@ -1,0 +1,110 @@
+import Fastify from 'fastify';
+import fastifyCors from '@fastify/cors';
+import fastifyHelmet from '@fastify/helmet';
+import fastifyJWT from '@fastify/jwt';
+import fastifyRateLimit from '@fastify/rate-limit';
+import fastifyEnv from '@fastify/env';
+import { MongoClient } from 'mongodb';
+
+const fastify = Fastify({ logger: true });
+
+// Global MongoDB client
+let client: MongoClient;
+
+async function registerPlugins() {
+  // Register environment variables first
+  await fastify.register(fastifyEnv, {
+    dotenv: true,
+    schema: {
+      type: 'object',
+      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT'],
+      properties: {
+        MONGODB_URI: { type: 'string' },
+        MONGODB_DB_NAME: { type: 'string' },
+        PORT: { type: 'string', default: '4000' },
+        OPENWEATHER_API_KEY: { type: 'string' },
+        OPENWEATHER_API_URL: { type: 'string' }
+      }
+    },
+    confKey: 'config'
+  });
+  
+  // Register security tools
+  fastify.register(fastifyHelmet);
+  fastify.register(fastifyCors, { origin: "*" });
+  fastify.register(fastifyRateLimit, {
+    max: 100,
+    timeWindow: '1 minute'
+  });
+
+  // Add JWT authentication
+  fastify.register(fastifyJWT, {
+    secret: 'supersecret' // Replace with a secure key in a real application
+  });
+}
+
+async function setupDatabase() {
+  // Connect to MongoDB after environment is loaded
+  client = await MongoClient.connect(fastify.config.MONGODB_URI);
+  fastify.decorate('mongo', client.db(fastify.config.MONGODB_DB_NAME));
+}
+
+// Register routes
+fastify.register(async function (fastify) {
+  const authRoutes = await import('./routes/auth');
+  const weatherRoutes = await import('./routes/weather');
+  const profileRoutes = await import('./routes/profile');
+  
+  fastify.register(authRoutes.default, { prefix: '/api/auth' });
+  fastify.register(weatherRoutes.default, { prefix: '/api/weather' });
+  fastify.register(profileRoutes.default, { prefix: '/api/profile' });
+});
+
+// Root route
+fastify.get('/', async (request, reply) => {
+  return { 
+    message: 'Hostaway Assessment API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      weather: '/api/weather',
+      profile: '/api/profile',
+      health: '/api/weather/health'
+    },
+    features: [
+      'User authentication with JWT',
+      'Weather data from OpenWeather API',
+      'Search history tracking',
+      'User profile management',
+      'Secure password hashing',
+      'Rate limiting and security headers'
+    ]
+  };
+});
+
+// Start server
+const start = async (): Promise<void> => {
+  try {
+    // Register plugins
+    await registerPlugins();
+    
+    // Setup database connection
+    await setupDatabase();
+
+    const port = parseInt(fastify.config.PORT, 10);
+    await fastify.listen({ port, host: '0.0.0.0' });
+    fastify.log.info(`Server listening on port ${port}`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+
+// Run the server
+start();
+
+process.on('SIGINT', async () => {
+  await client.close();
+  process.exit(0);
+});
+
