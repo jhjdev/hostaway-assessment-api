@@ -14,7 +14,7 @@ let client: MongoClient;
 async function registerPlugins() {
   // Register environment variables first
   await fastify.register(fastifyEnv, {
-    dotenv: {
+    dotenv: process.env.NODE_ENV === 'production' ? false : {
       path: '.env.development'
     },
     schema: {

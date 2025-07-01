@@ -91,6 +91,7 @@ declare module 'fastify' {
       PORT: string;
       OPENWEATHER_API_KEY: string;
       OPENWEATHER_API_URL: string;
+      JWT_SECRET: string;
     };
   }
 }

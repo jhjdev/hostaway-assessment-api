@@ -91,10 +91,17 @@ export default async function profileRoutes(fastify: FastifyInstance) {
       }
 
       // Merge current profile with updates
+      const defaultPreferences = {
+        units: 'metric' as const,
+        language: 'en' as const,
+        notifications: true
+      };
+      
       const updatedProfile: UserProfile = {
         ...currentUser.profile,
         ...profileUpdate,
         preferences: {
+          ...defaultPreferences,
           ...currentUser.profile?.preferences,
           ...profileUpdate.preferences
         }
