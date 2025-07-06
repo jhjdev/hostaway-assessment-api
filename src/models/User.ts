@@ -17,59 +17,62 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
-const UserSchema: Schema = new Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  firstName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  verificationCode: {
-    type: String,
-    sparse: true,
-  },
-  verificationCodeExpiry: {
-    type: Date,
-    sparse: true,
-  },
-  preferences: {
-    temperatureUnit: {
+const UserSchema: Schema = new Schema(
+  {
+    email: {
       type: String,
-      enum: ['celsius', 'fahrenheit'],
-      default: 'celsius',
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
-    theme: {
+    password: {
       type: String,
-      enum: ['light', 'dark', 'system'],
-      default: 'system',
+      required: true,
     },
-    notifications: {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    isVerified: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      sparse: true,
+    },
+    verificationCodeExpiry: {
+      type: Date,
+      sparse: true,
+    },
+    preferences: {
+      temperatureUnit: {
+        type: String,
+        enum: ['celsius', 'fahrenheit'],
+        default: 'celsius',
+      },
+      theme: {
+        type: String,
+        enum: ['light', 'dark', 'system'],
+        default: 'system',
+      },
+      notifications: {
+        type: Boolean,
+        default: true,
+      },
     },
   },
-}, {
-  timestamps: true,
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Add indexes for performance
 UserSchema.index({ email: 1 });
