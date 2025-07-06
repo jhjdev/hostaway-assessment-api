@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "commonjs",
     "lib": ["ES2022"],
+    "types": ["node"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -30,11 +31,20 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/index.ts",
+    "src/helpers/**/*",
+    "src/models/**/*",
+    "src/routes/**/*",
+    "src/services/**/*",
+    "src/types/**/*",
+    "src/utils/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "src/__tests__/**/*",
+    "src/scripts/**/*",
     "**/*.test.ts",
     "**/*.spec.ts"
   ]
