@@ -18,7 +18,7 @@ export async function connectToDatabase(uri: string): Promise<void> {
     console.log('URI format:', uri.replace(/:\/\/.*@/, '://***:***@'));
 
     // Mongoose connection options optimized for Atlas and Render
-    const options = {
+    const options: mongoose.ConnectOptions = {
       // Connection timeout
       serverSelectionTimeoutMS: 10000,
       connectTimeoutMS: 10000,
