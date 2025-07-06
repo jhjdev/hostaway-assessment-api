@@ -3,8 +3,8 @@ services:
     name: hostaway-assessment-api
     runtime: node
     plan: free
-    buildCommand: NODE_ENV=production npm ci && npm run build && ls -la dist/
-    startCommand: pwd && ls -la && ls -la dist/ && node dist/index.js
+    buildCommand: npm run build:prod
+    startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
