@@ -14,12 +14,40 @@ export default async function authRoutes(fastify: FastifyInstance) {
     '/register',
     {
       schema: {
+        tags: ['Authentication'],
+        summary: 'Register a new user',
+        description: 'Create a new user account with email and password',
         body: {
           type: 'object',
           required: ['email', 'password'],
           properties: {
             email: { type: 'string', format: 'email' },
             password: { type: 'string', minLength: 8 },
+          },
+        },
+        response: {
+          201: {
+            description: 'User registered successfully',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              userId: { type: 'string' },
+              verificationCode: { type: 'string' },
+            },
+          },
+          400: {
+            description: 'Invalid input',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+          409: {
+            description: 'User already exists',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
           },
         },
       },
@@ -92,12 +120,49 @@ export default async function authRoutes(fastify: FastifyInstance) {
     '/login',
     {
       schema: {
+        tags: ['Authentication'],
+        summary: 'Login user',
+        description: 'Authenticate user and return JWT token',
         body: {
           type: 'object',
           required: ['email', 'password'],
           properties: {
             email: { type: 'string', format: 'email' },
             password: { type: 'string' },
+          },
+        },
+        response: {
+          200: {
+            description: 'Login successful',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              token: { type: 'string' },
+              user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  email: { type: 'string' },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  preferences: {
+                    type: 'object',
+                    properties: {
+                      temperatureUnit: { type: 'string' },
+                      theme: { type: 'string' },
+                      notifications: { type: 'boolean' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Invalid credentials or unverified email',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
           },
         },
       },

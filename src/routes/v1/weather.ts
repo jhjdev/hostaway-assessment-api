@@ -17,11 +17,53 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
         }
       },
       schema: {
+        tags: ['Weather'],
+        summary: 'Get current weather',
+        description: 'Get current weather data for a specific city',
+        security: [{ bearerAuth: [] }],
         querystring: {
           type: 'object',
           required: ['city'],
           properties: {
-            city: { type: 'string', minLength: 1 },
+            city: {
+              type: 'string',
+              minLength: 1,
+              description: 'City name to get weather for',
+            },
+          },
+        },
+        response: {
+          200: {
+            description: 'Current weather data',
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  location: { type: 'string' },
+                  temperature: { type: 'number' },
+                  description: { type: 'string' },
+                  humidity: { type: 'number' },
+                  windSpeed: { type: 'number' },
+                  timestamp: { type: 'string' },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid city name',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+          401: {
+            description: 'Authentication required',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
           },
         },
       },
@@ -126,11 +168,57 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
         }
       },
       schema: {
+        tags: ['Weather'],
+        summary: 'Get weather forecast',
+        description: 'Get 5-day weather forecast for a specific city',
+        security: [{ bearerAuth: [] }],
         querystring: {
           type: 'object',
           required: ['city'],
           properties: {
-            city: { type: 'string', minLength: 1 },
+            city: {
+              type: 'string',
+              minLength: 1,
+              description: 'City name to get forecast for',
+            },
+          },
+        },
+        response: {
+          200: {
+            description: 'Weather forecast data',
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              location: { type: 'string' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    location: { type: 'string' },
+                    temperature: { type: 'number' },
+                    description: { type: 'string' },
+                    humidity: { type: 'number' },
+                    windSpeed: { type: 'number' },
+                    timestamp: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid city name',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+          401: {
+            description: 'Authentication required',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
           },
         },
       },
@@ -204,6 +292,58 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
         } catch (err) {
           reply.send(err);
         }
+      },
+      schema: {
+        tags: ['Weather'],
+        summary: 'Get search history',
+        description: 'Get user weather search history',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            description: 'Search history retrieved successfully',
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    _id: { type: 'string' },
+                    query: { type: 'string' },
+                    location: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        country: { type: 'string' },
+                        lat: { type: 'number' },
+                        lon: { type: 'number' },
+                      },
+                    },
+                    weatherData: {
+                      type: 'object',
+                      properties: {
+                        temperature: { type: 'number' },
+                        description: { type: 'string' },
+                        humidity: { type: 'number' },
+                        windSpeed: { type: 'number' },
+                        icon: { type: 'string' },
+                      },
+                    },
+                    createdAt: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Authentication required',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+        },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -281,6 +421,32 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
           reply.send(err);
         }
       },
+      schema: {
+        tags: ['Weather'],
+        summary: 'Clear search history',
+        description: 'Clear all user weather search history',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            description: 'Search history cleared successfully',
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: {
+                type: 'string',
+                example: 'Search history cleared successfully',
+              },
+            },
+          },
+          401: {
+            description: 'Authentication required',
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
@@ -306,6 +472,46 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
   // Health check endpoint
   fastify.get(
     '/health',
+    {
+      schema: {
+        tags: ['Health'],
+        summary: 'Health check',
+        description:
+          'Check the health of the weather service and external APIs',
+        response: {
+          200: {
+            description: 'Service is healthy',
+            type: 'object',
+            properties: {
+              status: { type: 'string' },
+              services: {
+                type: 'object',
+                properties: {
+                  openweather: { type: 'string' },
+                  database: { type: 'string' },
+                },
+              },
+              timestamp: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-07-06T12:00:00.000Z',
+              },
+            },
+          },
+          503: {
+            description: 'Service unhealthy',
+            type: 'object',
+            properties: {
+              status: { type: 'string' },
+              error: {
+                type: 'string',
+                example: 'OpenWeather API not responding',
+              },
+            },
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         // Test OpenWeather API connectivity

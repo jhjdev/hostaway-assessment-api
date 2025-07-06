@@ -16,6 +16,54 @@ export default async function profileRoutes(fastify: FastifyInstance) {
           reply.send(err);
         }
       },
+      schema: {
+        tags: ['Profile'],
+        summary: 'Get user profile',
+        description: 'Get authenticated user profile information',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            description: 'User profile retrieved successfully',
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              data: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  email: { type: 'string' },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  preferences: {
+                    type: 'object',
+                    properties: {
+                      temperatureUnit: { type: 'string' },
+                      theme: { type: 'string' },
+                      notifications: { type: 'boolean' },
+                    },
+                  },
+                  createdAt: { type: 'string' },
+                  updatedAt: { type: 'string' },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Authentication required',
+            type: 'object',
+            properties: {
+              error: { type: 'string', example: 'Authentication required' },
+            },
+          },
+          404: {
+            description: 'User not found',
+            type: 'object',
+            properties: {
+              error: { type: 'string', example: 'User not found' },
+            },
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
