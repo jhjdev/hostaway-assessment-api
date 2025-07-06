@@ -40,8 +40,8 @@ async function createSuperAdmin() {
 
     const result = await superAdmin.save();
     console.log('✅ Superadmin user created successfully');
-    console.log(`📧 Email: jhj@jhjdev.com`);
-    console.log(`🔑 Password: password123`);
+    console.log('📧 Email: jhj@jhjdev.com');
+    console.log('🔑 Password: password123');
     console.log(`🆔 User ID: ${result._id}`);
 
   } catch (error) {
