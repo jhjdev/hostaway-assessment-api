@@ -40,7 +40,7 @@ export async function connectToDatabase(uri: string): Promise<void> {
     console.log('✅ MongoDB connected successfully with Mongoose');
 
     // Handle connection events
-    mongoose.connection.on('error', error => {
+    mongoose.connection.on('error', (error: Error) => {
       // eslint-disable-next-line no-console
       console.error('MongoDB connection error:', error);
       isConnected = false;
