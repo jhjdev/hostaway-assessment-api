@@ -4,7 +4,7 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyJWT from '@fastify/jwt';
 import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyEnv from '@fastify/env';
-import { connectToDatabase, mongoose } from '../services/database';
+import { mongoose } from '../services/database';
 
 export function build() {
   const fastify = Fastify({ logger: false }); // Disable logging for tests
@@ -55,12 +55,15 @@ export function build() {
     fastify.register(profileRoutes.default, { prefix: '/api/profile' });
 
     // Test routes
-    fastify.get('/', async (request, reply) => {
-      return { message: 'Test API' };
+    fastify.get('/', async (_request, reply) => {
+      return reply.send({ message: 'Test API' });
     });
 
-    fastify.get('/api/health', async (request, reply) => {
-      return { status: 'healthy', timestamp: new Date().toISOString() };
+    fastify.get('/api/health', async (_request, reply) => {
+      return reply.send({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+      });
     });
   });
 

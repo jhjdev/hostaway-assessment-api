@@ -1,7 +1,10 @@
 import { config } from 'dotenv';
 import { hashPassword } from '../utils/auth';
 import { User } from '../models/User';
-import { connectToDatabase, disconnectFromDatabase } from '../services/database';
+import {
+  connectToDatabase,
+  disconnectFromDatabase,
+} from '../services/database';
 
 // Load environment variables based on NODE_ENV
 const env = process.env.NODE_ENV || 'development';
@@ -14,11 +17,12 @@ async function createSuperAdmin() {
     await connectToDatabase(MONGODB_URI);
 
     // Check if superadmin already exists
-    const existingSuperAdmin = await User.findOne({ 
-      email: 'jhj@jhjdev.com' 
+    const existingSuperAdmin = await User.findOne({
+      email: 'jhj@jhjdev.com',
     });
 
     if (existingSuperAdmin) {
+      // eslint-disable-next-line no-console
       console.log('✅ Superadmin user already exists');
       return;
     }
@@ -34,17 +38,21 @@ async function createSuperAdmin() {
       preferences: {
         temperatureUnit: 'celsius',
         theme: 'system',
-        notifications: true
-      }
+        notifications: true,
+      },
     });
 
     const result = await superAdmin.save();
+    // eslint-disable-next-line no-console
     console.log('✅ Superadmin user created successfully');
+    // eslint-disable-next-line no-console
     console.log('📧 Email: jhj@jhjdev.com');
+    // eslint-disable-next-line no-console
     console.log('🔑 Password: password123');
+    // eslint-disable-next-line no-console
     console.log(`🆔 User ID: ${result._id}`);
-
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('❌ Error creating superadmin:', error);
     process.exit(1);
   } finally {

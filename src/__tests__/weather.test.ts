@@ -11,7 +11,7 @@ describe('Weather Routes', () => {
 
     // Create and verify a test user
     const hashedPassword = await hashPassword('TestPassword123');
-    const user = await User.create({
+    await User.create({
       email: 'weather@example.com',
       password: hashedPassword,
       firstName: 'Weather',
