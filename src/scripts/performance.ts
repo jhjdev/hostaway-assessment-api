@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 
-import autocannon from 'autocannon';
+const autocannon = require('autocannon');
+
+interface AutocannonOptions {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  connections?: number;
+  duration?: number;
+  body?: string;
+}
 
 interface TestConfig {
   name: string;
@@ -69,14 +78,14 @@ async function runTest(config: TestConfig): Promise<void> {
   console.log(`\n🚀 Running test: ${config.name}`);
   console.log(`URL: ${config.url}`);
 
-  const options: autocannon.Options = {
+  const options: AutocannonOptions = {
     url: config.url,
     method: config.method || 'GET',
     headers: config.headers || {},
     connections: config.connections || 10,
     duration: config.duration || 10,
     body: config.body,
-  } as autocannon.Options;
+  };
 
   try {
     const result = await autocannon(options);

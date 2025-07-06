@@ -12,13 +12,23 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 - 🗄️ **MongoDB** - Database integration for user data and search history
 - 🚀 **Deployment Ready** - Configured for Render.com deployment
 
+## 📚 Documentation
+
+For complete API documentation, including interactive Swagger UI and detailed endpoint specifications, see:
+
+- **📖 [Complete API Documentation](API_DOCS.md)**
+- **🔗 [Live API Documentation](https://hostaway-assessment-api.onrender.com/api/v1/docs)** (Swagger UI)
+- **🔄 [API Versioning & Monitoring](https://hostaway-assessment-api.onrender.com/api/versions)**
+
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 
 ### Weather
+
 - `GET /api/weather/current?q={location}` - Get current weather
 - `GET /api/weather/forecast?q={location}` - Get weather forecast
 - `GET /api/weather/history` - Get user's search history
@@ -26,6 +36,7 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 - `GET /api/weather/health` - Health check endpoint
 
 ### Profile
+
 - `GET /api/profile` - Get user profile
 - `PUT /api/profile` - Update user profile
 - `DELETE /api/profile` - Delete user account
@@ -33,6 +44,7 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 ## Local Development
 
 ### Prerequisites
+
 - Node.js 18+
 - MongoDB (hosted instance)
 - OpenWeather API key
@@ -40,12 +52,14 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd hostaway-assessment-api
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -64,6 +78,7 @@ A secure Fastify TypeScript REST API backend for weather data management with us
      - `JWT_SECRET` - A secure random string (different for each environment)
 
 4. **Run the development server**
+
    ```bash
    npm run dev
    ```
@@ -86,21 +101,21 @@ A secure Fastify TypeScript REST API backend for weather data management with us
 2. **Configure Service**
    - **Name**: `hostaway-assessment-api`
    - **Environment**: Node
-Build Command : npm ci && npm run build
+     Build Command : npm ci && npm run build
    - **Start Command**: `npm start`
    - **Plan**: Free (or your preferred plan)
 
 3. **Set Environment Variables** ⚠️ **CRITICAL STEP**
-   
+
    In the Render dashboard, go to **Environment** and add these variables:
-   
-   | Variable | Value | Notes |
-   |----------|-------|-------|
-   | `MONGODB_URI` | Your MongoDB connection string | ⚠️ **Required - Set as secret** |
-   | `MONGODB_DB_NAME` | Your database name | ⚠️ **Required - Set manually** |
-   | `OPENWEATHER_API_KEY` | Your OpenWeather API key | ⚠️ **Required - Set as secret** |
-   | `JWT_SECRET` | Your production JWT secret | ⚠️ **Required - Set as secret** |
-   
+
+   | Variable              | Value                          | Notes                           |
+   | --------------------- | ------------------------------ | ------------------------------- |
+   | `MONGODB_URI`         | Your MongoDB connection string | ⚠️ **Required - Set as secret** |
+   | `MONGODB_DB_NAME`     | Your database name             | ⚠️ **Required - Set manually**  |
+   | `OPENWEATHER_API_KEY` | Your OpenWeather API key       | ⚠️ **Required - Set as secret** |
+   | `JWT_SECRET`          | Your production JWT secret     | ⚠️ **Required - Set as secret** |
+
    **Note**: The following variables are already configured in `render.yaml`:
    - `NODE_ENV=production`
    - `PORT=4000`
