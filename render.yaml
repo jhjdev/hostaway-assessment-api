@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: NODE_ENV=production npm ci && npm run build && ls -la dist/
-    startCommand: pwd && ls -la && node /opt/render/project/dist/index.js
+    startCommand: pwd && ls -la && ls -la dist/ && node dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
