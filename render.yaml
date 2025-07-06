@@ -3,7 +3,7 @@ services:
     name: hostaway-assessment-api
     runtime: node
     plan: free
-    buildCommand: npm run build:prod
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
