@@ -20,7 +20,7 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check src/**/*.ts",
     "perf:test": "tsx src/scripts/performance.ts",
-    "prepare": "husky install"
+    "prepare": "husky || true"
   },
   "engines": {
     "node": ">=22.0.0"
