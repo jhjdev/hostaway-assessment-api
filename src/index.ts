@@ -59,8 +59,7 @@ async function registerPlugins() {
   // Setup monitoring
   await setupMonitoring(fastify);
 
-  // Setup Swagger documentation
-  await setupSwagger(fastify);
+  // Note: Swagger setup moved to after route registration
 }
 
 async function setupJWT() {
@@ -192,6 +191,9 @@ const start = async (): Promise<void> => {
 
     // Setup database connection
     await setupDatabase();
+
+    // Setup Swagger documentation (after routes are registered)
+    await setupSwagger(fastify);
 
     const port = parseInt(fastify.config.PORT, 10);
     await fastify.listen({ port, host: '0.0.0.0' });

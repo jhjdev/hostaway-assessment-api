@@ -5,6 +5,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 export async function setupSwagger(fastify: any) {
   // Register Swagger
   await fastify.register(fastifySwagger, {
+    exposeRoute: true,
     openapi: {
       openapi: '3.0.0',
       info: {
@@ -138,6 +139,325 @@ export async function setupSwagger(fastify: any) {
               message: {
                 type: 'string',
                 example: 'Operation completed successfully',
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/api/v1/auth/register': {
+          post: {
+            tags: ['Authentication'],
+            summary: 'Register a new user',
+            description: 'Create a new user account with email and password',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['email', 'password'],
+                    properties: {
+                      email: { type: 'string', format: 'email' },
+                      password: { type: 'string', minLength: 8 },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                description: 'User registered successfully',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        message: { type: 'string' },
+                        userId: { type: 'string' },
+                        verificationCode: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: 'Invalid input',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/auth/login': {
+          post: {
+            tags: ['Authentication'],
+            summary: 'Login user',
+            description: 'Authenticate user and return JWT token',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['email', 'password'],
+                    properties: {
+                      email: { type: 'string', format: 'email' },
+                      password: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: 'Login successful',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        message: { type: 'string' },
+                        token: { type: 'string' },
+                        user: { $ref: '#/components/schemas/User' },
+                      },
+                    },
+                  },
+                },
+              },
+              401: {
+                description: 'Invalid credentials',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/weather/current': {
+          get: {
+            tags: ['Weather'],
+            summary: 'Get current weather',
+            description: 'Get current weather data for a specific city',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              {
+                name: 'city',
+                in: 'query',
+                required: true,
+                schema: { type: 'string' },
+                description: 'City name to get weather for',
+              },
+            ],
+            responses: {
+              200: {
+                description: 'Current weather data',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        data: { $ref: '#/components/schemas/WeatherData' },
+                      },
+                    },
+                  },
+                },
+              },
+              401: {
+                description: 'Authentication required',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/weather/forecast': {
+          get: {
+            tags: ['Weather'],
+            summary: 'Get weather forecast',
+            description: 'Get 5-day weather forecast for a specific city',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              {
+                name: 'city',
+                in: 'query',
+                required: true,
+                schema: { type: 'string' },
+                description: 'City name to get forecast for',
+              },
+            ],
+            responses: {
+              200: {
+                description: 'Weather forecast data',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        location: { type: 'string' },
+                        data: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/WeatherData' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              401: {
+                description: 'Authentication required',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/weather/history': {
+          get: {
+            tags: ['Weather'],
+            summary: 'Get search history',
+            description: 'Get user weather search history',
+            security: [{ bearerAuth: [] }],
+            responses: {
+              200: {
+                description: 'Search history retrieved successfully',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        data: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/SearchHistory' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          delete: {
+            tags: ['Weather'],
+            summary: 'Clear search history',
+            description: 'Clear all user weather search history',
+            security: [{ bearerAuth: [] }],
+            responses: {
+              200: {
+                description: 'Search history cleared successfully',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        message: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/profile': {
+          get: {
+            tags: ['Profile'],
+            summary: 'Get user profile',
+            description: 'Get authenticated user profile information',
+            security: [{ bearerAuth: [] }],
+            responses: {
+              200: {
+                description: 'User profile retrieved successfully',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        data: { $ref: '#/components/schemas/User' },
+                      },
+                    },
+                  },
+                },
+              },
+              401: {
+                description: 'Authentication required',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        error: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/api/v1/weather/health': {
+          get: {
+            tags: ['Health'],
+            summary: 'Health check',
+            description:
+              'Check the health of the weather service and external APIs',
+            responses: {
+              200: {
+                description: 'Service is healthy',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        status: { type: 'string' },
+                        services: {
+                          type: 'object',
+                          properties: {
+                            openweather: { type: 'string' },
+                            database: { type: 'string' },
+                          },
+                        },
+                        timestamp: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
