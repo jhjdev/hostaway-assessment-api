@@ -307,6 +307,16 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
   // Health check endpoint
   fastify.get(
     '/health',
+    {
+      preHandler: async (request, reply) => {
+        try {
+          // Require JWT authentication to access health check
+          await request.jwtVerify();
+        } catch (err) {
+          reply.send(err);
+        }
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         // Test OpenWeather API connectivity

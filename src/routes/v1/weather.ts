@@ -473,11 +473,20 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/health',
     {
+      preHandler: async (request, reply) => {
+        try {
+          // Require JWT authentication to access detailed health check
+          await request.jwtVerify();
+        } catch (err) {
+          reply.send(err);
+        }
+      },
       schema: {
         tags: ['Health'],
         summary: 'Health check',
         description:
           'Check the health of the weather service and external APIs',
+        security: [{ bearerAuth: [] }],
         response: {
           200: {
             description: 'Service is healthy',

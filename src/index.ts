@@ -32,7 +32,7 @@ async function registerPlugins() {
           },
     schema: {
       type: 'object',
-      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT', 'JWT_SECRET'],
+      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT', 'JWT_SECRET', 'OPENWEATHER_API_KEY', 'OPENWEATHER_API_URL'],
       properties: {
         MONGODB_URI: { type: 'string' },
         MONGODB_DB_NAME: { type: 'string' },

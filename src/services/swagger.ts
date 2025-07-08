@@ -437,6 +437,7 @@ export async function setupSwagger(fastify: any) {
             summary: 'Health check',
             description:
               'Check the health of the weather service and external APIs',
+            security: [{ bearerAuth: [] }],
             responses: {
               200: {
                 description: 'Service is healthy',
@@ -485,8 +486,17 @@ export async function setupSwagger(fastify: any) {
       onRequest: function (_request: any, _reply: any, next: any) {
         next();
       },
-      preHandler: function (_request: any, _reply: any, next: any) {
-        next();
+      preHandler: async function (request: any, reply: any, next: any) {
+        try {
+          // Require JWT authentication to access Swagger docs
+          await request.jwtVerify();
+          next();
+        } catch (err) {
+          reply.code(401).send({
+            error: 'Authentication required',
+            message: 'Please provide a valid JWT token to access API documentation'
+          });
+        }
       },
     },
     staticCSP: true,
