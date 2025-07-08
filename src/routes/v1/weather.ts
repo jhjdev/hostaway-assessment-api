@@ -47,6 +47,9 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
                   humidity: { type: 'number' },
                   windSpeed: { type: 'number' },
                   timestamp: { type: 'string' },
+                  country: { type: 'string' },
+                  lat: { type: 'number' },
+                  lon: { type: 'number' },
                 },
               },
             },
@@ -93,6 +96,9 @@ export default async function weatherRoutes(fastify: FastifyInstance) {
           humidity: response.data.main.humidity,
           windSpeed: response.data.wind.speed,
           timestamp: new Date(),
+          country: response.data.sys.country,
+          lat: response.data.coord.lat,
+          lon: response.data.coord.lon,
         };
 
         // Save search to history

@@ -25,6 +25,9 @@ export interface WeatherData {
   humidity: number;
   windSpeed: number;
   timestamp: Date;
+  country?: string;
+  lat?: number;
+  lon?: number;
 }
 
 export interface RegisterRequest {
