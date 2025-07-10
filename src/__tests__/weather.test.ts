@@ -65,6 +65,9 @@ describe('Weather Routes', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/weather/health',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -80,6 +83,9 @@ describe('Weather Routes', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/weather/health',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(503);
