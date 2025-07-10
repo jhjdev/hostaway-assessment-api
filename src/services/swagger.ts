@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
+import { loggers } from './logger';
 
 export async function setupSwagger(fastify: any) {
   // Register Swagger
@@ -491,7 +492,9 @@ export async function setupSwagger(fastify: any) {
           // Require JWT authentication to access Swagger docs
           await request.jwtVerify();
           next();
-        } catch (err) {
+        } catch {
+          // Log the authentication failure for security monitoring
+          loggers.auth.failed('swagger-docs', 'JWT token required for API documentation access');
           reply.code(401).send({
             error: 'Authentication required',
             message: 'Please provide a valid JWT token to access API documentation'
