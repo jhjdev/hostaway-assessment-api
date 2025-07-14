@@ -1,0 +1,1039 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hostaway Assessment API - Apidog Collection",
+    "description": "Complete API collection for testing the Hostaway Assessment API with authentication, weather endpoints, and user management",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@hostaway.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://hostaway-assessment-api.onrender.com",
+      "description": "Production Server (Render.com)"
+    },
+    {
+      "url": "http://localhost:4000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from login endpoint"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "64a7b2c1e4f5d6789abcdef0"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "preferences": {
+            "type": "object",
+            "properties": {
+              "temperatureUnit": {
+                "type": "string",
+                "enum": ["celsius", "fahrenheit"],
+                "example": "celsius"
+              },
+              "theme": {
+                "type": "string",
+                "enum": ["light", "dark", "system"],
+                "example": "system"
+              },
+              "notifications": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          }
+        }
+      },
+      "WeatherData": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "example": "London"
+          },
+          "temperature": {
+            "type": "number",
+            "example": 15
+          },
+          "description": {
+            "type": "string",
+            "example": "partly cloudy"
+          },
+          "humidity": {
+            "type": "number",
+            "example": 65
+          },
+          "windSpeed": {
+            "type": "number",
+            "example": 3.5
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-07-14T10:00:00.000Z"
+          }
+        }
+      },
+      "SearchHistory": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64a7b2c1e4f5d6789abcdef0"
+          },
+          "query": {
+            "type": "string",
+            "example": "London"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "London"
+              },
+              "country": {
+                "type": "string",
+                "example": "GB"
+              },
+              "lat": {
+                "type": "number",
+                "example": 51.5074
+              },
+              "lon": {
+                "type": "number",
+                "example": -0.1278
+              }
+            }
+          },
+          "weatherData": {
+            "type": "object",
+            "properties": {
+              "temperature": {
+                "type": "number",
+                "example": 15
+              },
+              "description": {
+                "type": "string",
+                "example": "partly cloudy"
+              },
+              "humidity": {
+                "type": "number",
+                "example": 65
+              },
+              "windSpeed": {
+                "type": "number",
+                "example": 3.5
+              },
+              "icon": {
+                "type": "string",
+                "example": "03d"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-07-14T10:00:00.000Z"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["🔐 Authentication"],
+        "summary": "Register New User",
+        "description": "Create a new user account with email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "testuser@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "StrongPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User registered successfully"
+                    },
+                    "userId": {
+                      "type": "string",
+                      "example": "64a7b2c1e4f5d6789abcdef0"
+                    },
+                    "verificationCode": {
+                      "type": "string",
+                      "example": "123456"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid email format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User already exists"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["🔐 Authentication"],
+        "summary": "Login User",
+        "description": "Authenticate user and return JWT token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "testuser@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "StrongPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid credentials"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "tags": ["🔐 Authentication"],
+        "summary": "Verify Email",
+        "description": "Verify user email with verification code",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email verified successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired verification code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid or expired verification code"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/weather/current": {
+      "get": {
+        "tags": ["🌤️ Weather"],
+        "summary": "Get Current Weather",
+        "description": "Get current weather data for a specific city",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "London"
+            },
+            "description": "City name to get weather for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current weather data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WeatherData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Authentication required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "City not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "City not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/weather/forecast": {
+      "get": {
+        "tags": ["🌤️ Weather"],
+        "summary": "Get Weather Forecast",
+        "description": "Get 5-day weather forecast for a specific city",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Paris"
+            },
+            "description": "City name to get forecast for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Weather forecast data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "example": "Paris"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WeatherData"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "City not found"
+          }
+        }
+      }
+    },
+    "/api/weather/history": {
+      "get": {
+        "tags": ["🌤️ Weather"],
+        "summary": "Get Search History",
+        "description": "Get user's weather search history",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Search history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SearchHistory"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["🌤️ Weather"],
+        "summary": "Clear Search History",
+        "description": "Clear all user's weather search history",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Search history cleared successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Search history cleared successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/weather/history/{id}": {
+      "delete": {
+        "tags": ["🌤️ Weather"],
+        "summary": "Delete Specific Search",
+        "description": "Delete a specific search from history",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "64a7b2c1e4f5d6789abcdef0"
+            },
+            "description": "Search history ID to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Search deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Search record not found"
+          }
+        }
+      }
+    },
+    "/api/weather/health": {
+      "get": {
+        "tags": ["🔍 Health"],
+        "summary": "Health Check",
+        "description": "Check the health of the weather service and external APIs",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "openweather": {
+                          "type": "string",
+                          "example": "connected"
+                        },
+                        "database": {
+                          "type": "string",
+                          "example": "connected"
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-07-14T10:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "unhealthy"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "OpenWeather API not responding"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "tags": ["👤 Profile"],
+        "summary": "Get User Profile",
+        "description": "Get authenticated user's profile information",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["👤 Profile"],
+        "summary": "Update User Profile",
+        "description": "Update user's profile information",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "preferences": {
+                    "type": "object",
+                    "properties": {
+                      "temperatureUnit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "example": "celsius"
+                      },
+                      "theme": {
+                        "type": "string",
+                        "enum": ["light", "dark", "system"],
+                        "example": "dark"
+                      },
+                      "notifications": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Profile updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["👤 Profile"],
+        "summary": "Delete User Account",
+        "description": "Delete the authenticated user's account and all associated data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Account deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/profile/preferences": {
+      "patch": {
+        "tags": ["👤 Profile"],
+        "summary": "Update User Preferences",
+        "description": "Update only user preferences",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["preferences"],
+                "properties": {
+                  "preferences": {
+                    "type": "object",
+                    "properties": {
+                      "temperatureUnit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "example": "fahrenheit"
+                      },
+                      "theme": {
+                        "type": "string",
+                        "enum": ["light", "dark", "system"],
+                        "example": "light"
+                      },
+                      "notifications": {
+                        "type": "boolean",
+                        "example": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preferences updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Preferences updated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "preferences": {
+                          "type": "object",
+                          "properties": {
+                            "temperatureUnit": {
+                              "type": "string",
+                              "example": "fahrenheit"
+                            },
+                            "theme": {
+                              "type": "string",
+                              "example": "light"
+                            },
+                            "notifications": {
+                              "type": "boolean",
+                              "example": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/versions": {
+      "get": {
+        "tags": ["🔄 API Info"],
+        "summary": "Get API Versions",
+        "description": "Get information about supported API versions",
+        "responses": {
+          "200": {
+            "description": "API version information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "current": {
+                      "type": "string",
+                      "example": "v1"
+                    },
+                    "supported": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["v1"]
+                    },
+                    "versions": {
+                      "type": "object",
+                      "properties": {
+                        "v1": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "stable"
+                            },
+                            "released": {
+                              "type": "string",
+                              "example": "2025-07-06"
+                            },
+                            "documentation": {
+                              "type": "string",
+                              "example": "/api/v1/docs"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["🔄 API Info"],
+        "summary": "API Root",
+        "description": "Get basic API information and available endpoints",
+        "responses": {
+          "200": {
+            "description": "API information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Hostaway Assessment API"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    },
+                    "endpoints": {
+                      "type": "object",
+                      "properties": {
+                        "auth": {
+                          "type": "string",
+                          "example": "/api/auth"
+                        },
+                        "weather": {
+                          "type": "string",
+                          "example": "/api/weather"
+                        },
+                        "profile": {
+                          "type": "string",
+                          "example": "/api/profile"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "🔐 Authentication",
+      "description": "User authentication operations"
+    },
+    {
+      "name": "🌤️ Weather",
+      "description": "Weather data and search history"
+    },
+    {
+      "name": "👤 Profile",
+      "description": "User profile management"
+    },
+    {
+      "name": "🔍 Health",
+      "description": "System health and monitoring"
+    },
+    {
+      "name": "🔄 API Info",
+      "description": "API information and versioning"
+    }
+  ]
+}

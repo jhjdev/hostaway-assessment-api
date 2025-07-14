@@ -288,8 +288,20 @@ All three files are required and should contain the same variables with environm
 ## 📚 Additional Documentation
 
 - **[API Enhancement Roadmap](docs/API_ENHANCEMENT_ROADMAP.md)** - Future development plans and roadmap
-- **[Environment Files Analysis](ENVIRONMENT_FILES_ANALYSIS.md)** - Environment configuration details
+- **[Apidog Testing Guide](docs/APIDOG_TESTING_GUIDE.md)** - Complete guide for testing the API with Apidog
 - **[OpenAPI Specification](https://hostaway-assessment-api.onrender.com/api/v1/openapi.json)** - Complete API specification
+
+## 🧪 API Testing
+
+This project includes a complete **Apidog collection** (`apidog-collection.json`) for comprehensive API testing:
+
+- **Import into Apidog**: Use the provided OpenAPI 3.0 specification
+- **Complete test coverage**: All endpoints with example requests and responses
+- **Authentication setup**: JWT bearer token configuration
+- **Multiple environments**: Production and local development support
+- **Guided testing**: Step-by-step testing workflows
+
+**Quick Start**: See the [Apidog Testing Guide](docs/APIDOG_TESTING_GUIDE.md) for detailed instructions.
 
 ---
 
