@@ -50,3 +50,6 @@ coverage/
 
 # Security documentation with secrets
 RENDER_SECURITY_SETUP_LOCAL.md
+
+# Test credentials (security)
+test-credentials.txt

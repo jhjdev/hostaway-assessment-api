@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Hostaway Assessment API - Apidog Collection",
-    "description": "Complete API collection for testing the Hostaway Assessment API with authentication, weather endpoints, and user management",
+    "description": "Complete API collection for testing the Hostaway Assessment API with authentication, weather endpoints, and user management. Use admin@hostaway.com / AdminPassword123! for admin access or user@hostaway.com / UserPassword123! for regular user access.",
     "version": "1.0.0",
     "contact": {
       "name": "API Support",
@@ -183,12 +183,12 @@
                   "email": {
                     "type": "string",
                     "format": "email",
-                    "example": "testuser@example.com"
+                    "example": "admin@hostaway.com"
                   },
                   "password": {
                     "type": "string",
                     "minLength": 8,
-                    "example": "StrongPassword123"
+                    "example": "AdminPassword123!"
                   }
                 }
               }
@@ -271,11 +271,11 @@
                   "email": {
                     "type": "string",
                     "format": "email",
-                    "example": "testuser@example.com"
+                    "example": "admin@hostaway.com"
                   },
                   "password": {
                     "type": "string",
-                    "example": "StrongPassword123"
+                    "example": "AdminPassword123!"
                   }
                 }
               }
@@ -687,6 +687,532 @@
         }
       }
     },
+    "/api/v1/weather/current/enhanced": {
+      "get": {
+        "tags": ["🌟 Weather Enhanced"],
+        "summary": "Get Enhanced Current Weather",
+        "description": "Get comprehensive current weather data including UV index, air quality, and hourly forecast using One Call API 3.0",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "London"
+            },
+            "description": "City name to get weather for"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 51.5074
+            },
+            "description": "Latitude coordinate"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": -0.1278
+            },
+            "description": "Longitude coordinate"
+          },
+          {
+            "name": "units",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["metric", "imperial", "kelvin"],
+              "default": "metric"
+            },
+            "description": "Units for temperature and wind speed"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enhanced current weather data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string",
+                          "example": "London, GB"
+                        },
+                        "temperature": {
+                          "type": "number",
+                          "example": 22
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "partly cloudy"
+                        },
+                        "humidity": {
+                          "type": "number",
+                          "example": 65
+                        },
+                        "windSpeed": {
+                          "type": "number",
+                          "example": 3.5
+                        },
+                        "visibility": {
+                          "type": "number",
+                          "example": 10000
+                        },
+                        "pressure": {
+                          "type": "number",
+                          "example": 1013
+                        },
+                        "feelsLike": {
+                          "type": "number",
+                          "example": 24
+                        },
+                        "uvi": {
+                          "type": "number",
+                          "example": 7.2
+                        },
+                        "uvDescription": {
+                          "type": "string",
+                          "example": "High"
+                        },
+                        "airQuality": {
+                          "type": "object",
+                          "properties": {
+                            "aqi": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "pm2_5": {
+                              "type": "number",
+                              "example": 15.3
+                            },
+                            "pm10": {
+                              "type": "number",
+                              "example": 23.1
+                            }
+                          }
+                        },
+                        "hourlyForecast": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "dt": {
+                                "type": "number",
+                                "example": 1687366800
+                              },
+                              "temp": {
+                                "type": "number",
+                                "example": 23
+                              },
+                              "weather": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "main": {
+                                      "type": "string",
+                                      "example": "Clouds"
+                                    },
+                                    "description": {
+                                      "type": "string",
+                                      "example": "few clouds"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/hourly": {
+      "get": {
+        "tags": ["🌟 Weather Enhanced"],
+        "summary": "Get Hourly Forecast",
+        "description": "Get 48-hour detailed hourly weather forecast",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "London"
+            },
+            "description": "City name to get forecast for"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 51.5074
+            },
+            "description": "Latitude coordinate"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": -0.1278
+            },
+            "description": "Longitude coordinate"
+          },
+          {
+            "name": "hours",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 24,
+              "example": 48
+            },
+            "description": "Number of hours to forecast (max 48)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hourly forecast data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string",
+                          "example": "London, GB"
+                        },
+                        "hourlyForecast": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "dt": {
+                                "type": "number",
+                                "example": 1687366800
+                              },
+                              "temp": {
+                                "type": "number",
+                                "example": 23
+                              },
+                              "feels_like": {
+                                "type": "number",
+                                "example": 24
+                              },
+                              "pressure": {
+                                "type": "number",
+                                "example": 1013
+                              },
+                              "humidity": {
+                                "type": "number",
+                                "example": 65
+                              },
+                              "uvi": {
+                                "type": "number",
+                                "example": 7.2
+                              },
+                              "wind_speed": {
+                                "type": "number",
+                                "example": 3.5
+                              },
+                              "pop": {
+                                "type": "number",
+                                "example": 0.2
+                              },
+                              "weather": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "main": {
+                                      "type": "string",
+                                      "example": "Clouds"
+                                    },
+                                    "description": {
+                                      "type": "string",
+                                      "example": "few clouds"
+                                    },
+                                    "icon": {
+                                      "type": "string",
+                                      "example": "02d"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/air-quality": {
+      "get": {
+        "tags": ["🌟 Weather Enhanced"],
+        "summary": "Get Air Quality Data",
+        "description": "Get current air quality information including AQI and pollutant levels",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "London"
+            },
+            "description": "City name to get air quality for"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 51.5074
+            },
+            "description": "Latitude coordinate"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": -0.1278
+            },
+            "description": "Longitude coordinate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Air quality data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string",
+                          "example": "London, GB"
+                        },
+                        "aqi": {
+                          "type": "number",
+                          "example": 2
+                        },
+                        "aqiDescription": {
+                          "type": "string",
+                          "example": "Fair"
+                        },
+                        "components": {
+                          "type": "object",
+                          "properties": {
+                            "co": {
+                              "type": "number",
+                              "example": 233.9
+                            },
+                            "no": {
+                              "type": "number",
+                              "example": 0.12
+                            },
+                            "no2": {
+                              "type": "number",
+                              "example": 15.3
+                            },
+                            "o3": {
+                              "type": "number",
+                              "example": 101.2
+                            },
+                            "so2": {
+                              "type": "number",
+                              "example": 3.1
+                            },
+                            "pm2_5": {
+                              "type": "number",
+                              "example": 15.3
+                            },
+                            "pm10": {
+                              "type": "number",
+                              "example": 23.1
+                            },
+                            "nh3": {
+                              "type": "number",
+                              "example": 1.2
+                            }
+                          }
+                        },
+                        "healthRecommendations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "Air quality is acceptable for most people"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/alerts": {
+      "get": {
+        "tags": ["🌟 Weather Enhanced"],
+        "summary": "Get Weather Alerts",
+        "description": "Get government weather warnings and alerts for the location",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "London"
+            },
+            "description": "City name to get alerts for"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 51.5074
+            },
+            "description": "Latitude coordinate"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": -0.1278
+            },
+            "description": "Longitude coordinate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Weather alerts data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string",
+                          "example": "London, GB"
+                        },
+                        "alerts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "event": {
+                                "type": "string",
+                                "example": "Heavy Rain Warning"
+                              },
+                              "start": {
+                                "type": "number",
+                                "example": 1687366800
+                              },
+                              "end": {
+                                "type": "number",
+                                "example": 1687453200
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Heavy rainfall expected. Flooding possible."
+                              },
+                              "sender_name": {
+                                "type": "string",
+                                "example": "Met Office"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "example": ["Rain", "Flood"]
+                              }
+                            }
+                          }
+                        },
+                        "alertsCount": {
+                          "type": "number",
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
     "/api/profile": {
       "get": {
         "tags": ["👤 Profile"],
@@ -1022,6 +1548,10 @@
     {
       "name": "🌤️ Weather",
       "description": "Weather data and search history"
+    },
+    {
+      "name": "🌟 Weather Enhanced",
+      "description": "Enhanced weather features with One Call API 3.0 (UV index, air quality, hourly forecasts, alerts)"
     },
     {
       "name": "👤 Profile",

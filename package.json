@@ -13,6 +13,7 @@
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit",
     "seed": "tsx src/scripts/seed.ts",
+    "setup-test-users": "tsx scripts/setup-test-users.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
