@@ -23,11 +23,15 @@ export async function registerVersionedRoutes(fastify: any) {
       // Import V1 route handlers
       const authRoutes = await import('../routes/v1/auth');
       const weatherRoutes = await import('../routes/v1/weather');
+      const weatherEnhancedRoutes = await import(
+        '../routes/v1/weatherEnhanced'
+      );
       const profileRoutes = await import('../routes/v1/profile');
 
       // Register V1 routes
       fastify.register(authRoutes.default, { prefix: '/auth' });
       fastify.register(weatherRoutes.default, { prefix: '/weather' });
+      fastify.register(weatherEnhancedRoutes.default, { prefix: '/weather' });
       fastify.register(profileRoutes.default, { prefix: '/profile' });
 
       // V1 Info endpoint
@@ -39,6 +43,12 @@ export async function registerVersionedRoutes(fastify: any) {
           endpoints: {
             auth: '/api/v1/auth',
             weather: '/api/v1/weather',
+            'weather-enhanced': {
+              'current-enhanced': '/api/v1/weather/current/enhanced',
+              'hourly-forecast': '/api/v1/weather/hourly',
+              'air-quality': '/api/v1/weather/air-quality',
+              'weather-alerts': '/api/v1/weather/alerts',
+            },
             profile: '/api/v1/profile',
           },
           documentation: '/api/v1/docs',

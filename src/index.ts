@@ -32,7 +32,14 @@ async function registerPlugins() {
           },
     schema: {
       type: 'object',
-      required: ['MONGODB_URI', 'MONGODB_DB_NAME', 'PORT', 'JWT_SECRET', 'OPENWEATHER_API_KEY', 'OPENWEATHER_API_URL'],
+      required: [
+        'MONGODB_URI',
+        'MONGODB_DB_NAME',
+        'PORT',
+        'JWT_SECRET',
+        'OPENWEATHER_API_KEY',
+        'OPENWEATHER_API_URL',
+      ],
       properties: {
         MONGODB_URI: { type: 'string' },
         MONGODB_DB_NAME: { type: 'string' },
@@ -133,10 +140,12 @@ fastify.register(async function (fastify) {
   // Backward compatibility - register original routes
   const authRoutes = await import('./routes/auth');
   const weatherRoutes = await import('./routes/weather');
+  const weatherEnhancedRoutes = await import('./routes/weatherEnhanced');
   const profileRoutes = await import('./routes/profile');
 
   fastify.register(authRoutes.default, { prefix: '/api/auth' });
   fastify.register(weatherRoutes.default, { prefix: '/api/weather' });
+  fastify.register(weatherEnhancedRoutes.default, { prefix: '/api/weather' });
   fastify.register(profileRoutes.default, { prefix: '/api/profile' });
 });
 
@@ -148,6 +157,12 @@ fastify.get('/', async (_request, _reply) => {
     endpoints: {
       auth: '/api/auth',
       weather: '/api/weather',
+      'weather-enhanced': {
+        'current-enhanced': '/api/weather/current/enhanced',
+        'hourly-forecast': '/api/weather/hourly',
+        'air-quality': '/api/weather/air-quality',
+        'weather-alerts': '/api/weather/alerts',
+      },
       profile: '/api/profile',
       health: '/api/health',
     },
@@ -157,7 +172,11 @@ fastify.get('/', async (_request, _reply) => {
     },
     features: [
       'User authentication with JWT',
-      'Weather data from OpenWeather API',
+      'Enhanced weather data with One Call API 3.0',
+      'UV Index and air quality monitoring',
+      'Hourly and minutely weather forecasts',
+      'Weather alerts and government warnings',
+      'Coordinate-based weather requests',
       'Search history tracking',
       'User profile management',
       'Secure password hashing',
